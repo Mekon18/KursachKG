@@ -163,7 +163,8 @@ namespace Kursach_v0._1
                     ClearZBuffer();
 
                     DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 30, polyhedron);
-                    DrawPolyhedronByZBufferMetod(bmp, line, Vector.Point3DToVector(_LightPoint));
+                    DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 30, line);
+                    //DrawPolyhedronByZBufferMetod(bmp, line, Vector.Point3DToVector(_LightPoint));
                     pictureBox1.Image = bmp;
 
                     foreach (var point in polyhedron.Vertexes)
@@ -216,6 +217,7 @@ namespace Kursach_v0._1
 
         public void DrawPolyhedronByZBufferMetod(Bitmap bmp, Polyhedron polyhedron, Vector LightVector)
         {
+            polyhedron.ResetBodyMatrix();
             for (int polygon = 0; polygon < polyhedron.Faces.Length; polygon++)
             {
                 Point3D[] pointsBuf = new Point3D[polyhedron.Faces[polygon].Points.Length + 1];
@@ -234,7 +236,7 @@ namespace Kursach_v0._1
                 }
 
 
-                double L = GetCos1(-new Vector(coef[0], coef[1], coef[2]),LightVector);
+                double L = GetCos1(-new Vector(coef1[0], coef1[1], coef1[2]), LightVector);
                 int R = (int)(polyhedron.Faces[polygon].Color.R * L);
                 R = R > 0 && R < 255 ? R : R > 0 ? 255 : 0;
                 int G = (int)(polyhedron.Faces[polygon].Color.G * L);
@@ -432,7 +434,10 @@ namespace Kursach_v0._1
 
         private double GetCos1(Vector v1, Vector v2)
         {
-            return Math.Abs(GetCos(v1,v2));
+            if (GetCos(new Vector(0, -1, 0), v1) > 0)
+                return GetCos(v1, v2);
+            else
+                return GetCos(-v1, v2);
         }
 
         private int CalculateX(Point3D p1, Point3D p2, int y)
