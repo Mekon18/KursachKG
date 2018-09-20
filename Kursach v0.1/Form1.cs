@@ -308,9 +308,9 @@ namespace Kursach_v0._1
                         for (int k = 0; k < polygons.Count; k++)
                         {
                             int index = polyhedron.Faces.ToList().IndexOf(polygons[k]);
-                            normal.X += coef1[0];
-                            normal.Y += coef1[1];
-                            normal.Z += coef1[2];
+                            normal.X += polyhedron.BodyMatrix[0, index];
+                            normal.Y += polyhedron.BodyMatrix[1, index];
+                            normal.Z += polyhedron.BodyMatrix[2, index];
                         }
                         normal.X /= polygons.Count;
                         normal.Y /= polygons.Count;
@@ -396,9 +396,9 @@ namespace Kursach_v0._1
                                 Vector V = V1 + (V2 - V1) * (x - xmin) / (xmax - xmin);
                                 V /= V.Length;
                                 Vector LightVector = new Vector(x, z, y) - Vector.Point3DToVector(Light);
-                                Vector ObservationVector = new Vector(x, z, y) - Vector.Point3DToVector(Observation);
+                                Vector ObservationVector = -new Vector(x, z, y) + Vector.Point3DToVector(Observation);
                                 Vector Reflect = LightVector - 2 * V * Vector.ScalarMultiplying(V, LightVector);
-                                double alpha = GetCos1(Reflect, -ObservationVector);
+                                double alpha = GetCos(Reflect, ObservationVector);
                                 double theta = GetCos1(V, LightVector);
                                 double I = (alpha > 0 ? Math.Pow(alpha, p) : 0) + theta;
 
