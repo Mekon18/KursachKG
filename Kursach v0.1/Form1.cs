@@ -289,10 +289,11 @@ namespace Kursach_v0._1
                 {
                     double[] coef = polyhedron.Faces[polygon].CalculateCoefficients(new Point3D(0, 0, 0));
                     double[] coef1 = polyhedron.Faces[polygon].CalculateCoefficients(polyhedron.Center);
-                    for (int i = 0; i < 4; i++)
-                    {
-                        coef1[i] *= Math.Sign(coef1[3]);
-                    }
+                    if (coef1[3] != 0)
+                        for (int i = 0; i < 4; i++)
+                        {
+                            coef1[i] *= Math.Sign(coef1[3]);
+                        }
 
                     Point3D[] pointsBuf = new Point3D[polyhedron.Faces[polygon].Points.Length + 1];
                     polyhedron.Faces[polygon].Points.CopyTo(pointsBuf, 0);
@@ -307,9 +308,9 @@ namespace Kursach_v0._1
                         for (int k = 0; k < polygons.Count; k++)
                         {
                             int index = polyhedron.Faces.ToList().IndexOf(polygons[k]);
-                            normal.X += polyhedron.BodyMatrix[0, index];
-                            normal.Y += polyhedron.BodyMatrix[1, index];
-                            normal.Z += polyhedron.BodyMatrix[2, index];
+                            normal.X += coef1[0];
+                            normal.Y += coef1[1];
+                            normal.Z += coef1[2];
                         }
                         normal.X /= polygons.Count;
                         normal.Y /= polygons.Count;
