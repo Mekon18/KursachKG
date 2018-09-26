@@ -39,6 +39,11 @@
             this.AcceptButton = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.textBoxRotatingSpeed = new System.Windows.Forms.TextBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.LineCheckBox = new System.Windows.Forms.CheckBox();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.buttonPolyhedronColor = new System.Windows.Forms.Button();
+            this.buttonLineColor = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
@@ -149,11 +154,71 @@
             this.textBoxRotatingSpeed.Text = "1";
             this.textBoxRotatingSpeed.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxRotatingSpeed_KeyDown);
             // 
+            // comboBox1
+            // 
+            this.comboBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.comboBox1.Items.AddRange(new object[] {
+            "Кривая(Фонг)",
+            "Кривая(Диффузное)",
+            "Сфера(Фонг)",
+            "Сфера(Диффузное)",
+            "Конус(Фонг)",
+            "Конус(Диффузное)",
+            "Цилиндр(Фонг)",
+            "Цилиндр(Диффузное)",
+            "Куб(Фонг)",
+            "Куб(Диффузное)"});
+            this.comboBox1.Location = new System.Drawing.Point(683, 12);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(129, 21);
+            this.comboBox1.TabIndex = 11;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.comboBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.comboBox1_KeyDown);
+            // 
+            // LineCheckBox
+            // 
+            this.LineCheckBox.AutoSize = true;
+            this.LineCheckBox.Checked = true;
+            this.LineCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.LineCheckBox.Location = new System.Drawing.Point(683, 64);
+            this.LineCheckBox.Name = "LineCheckBox";
+            this.LineCheckBox.Size = new System.Drawing.Size(172, 17);
+            this.LineCheckBox.TabIndex = 12;
+            this.LineCheckBox.Text = "Наличие секущей плоскости";
+            this.LineCheckBox.UseVisualStyleBackColor = true;
+            this.LineCheckBox.CheckedChanged += new System.EventHandler(this.LineCheckBox_CheckedChanged);
+            // 
+            // buttonPolyhedronColor
+            // 
+            this.buttonPolyhedronColor.Location = new System.Drawing.Point(833, 10);
+            this.buttonPolyhedronColor.Name = "buttonPolyhedronColor";
+            this.buttonPolyhedronColor.Size = new System.Drawing.Size(108, 23);
+            this.buttonPolyhedronColor.TabIndex = 13;
+            this.buttonPolyhedronColor.Text = "Выбрать цвет";
+            this.buttonPolyhedronColor.UseVisualStyleBackColor = true;
+            this.buttonPolyhedronColor.Click += new System.EventHandler(this.buttonPolyhedronColor_Click);
+            // 
+            // buttonLineColor
+            // 
+            this.buttonLineColor.Location = new System.Drawing.Point(861, 64);
+            this.buttonLineColor.Name = "buttonLineColor";
+            this.buttonLineColor.Size = new System.Drawing.Size(108, 23);
+            this.buttonLineColor.TabIndex = 14;
+            this.buttonLineColor.Text = "Выбрать цвет";
+            this.buttonLineColor.UseVisualStyleBackColor = true;
+            this.buttonLineColor.Click += new System.EventHandler(this.buttonLineColor_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(638, 421);
+            this.ClientSize = new System.Drawing.Size(633, 421);
+            this.Controls.Add(this.buttonLineColor);
+            this.Controls.Add(this.buttonPolyhedronColor);
+            this.Controls.Add(this.LineCheckBox);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBoxRotatingSpeed);
             this.Controls.Add(this.AcceptButton);
@@ -187,6 +252,11 @@
         private System.Windows.Forms.Button AcceptButton;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxRotatingSpeed;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.CheckBox LineCheckBox;
+        private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.Button buttonPolyhedronColor;
+        private System.Windows.Forms.Button buttonLineColor;
     }
 }
 

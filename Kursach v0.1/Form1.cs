@@ -25,11 +25,18 @@ namespace Kursach_v0._1
         Point3D _Observation;
         double[,] ZBuffer;
         object locker = new object();
+        int _SelectedIndex;
+        Color _PolyhedronColor;
+        Color _LineColor;
 
         public Form1()
         {
             InitializeComponent();
 
+            comboBox1.SelectedIndex = 0;
+            _SelectedIndex = 0;
+            _PolyhedronColor = Color.Green;
+            _LineColor = Color.FromArgb(0, 0, 128);
             bmp = new Bitmap(pictureBox2.Width, pictureBox2.Height);
             Graphic2D();
             double zoom = 1;
@@ -120,38 +127,67 @@ namespace Kursach_v0._1
 
         void GetPolyhedrons()
         {
-            //polyhedron = GetCube(new Point3D(0, 0, 0), 100);
+            switch (_SelectedIndex)
+            {
+                case 0:
+                case 1:
+                    polyhedron = GetFunctionPolyhedron(Function1, 60, -4, 4, 0.2, _PolyhedronColor);
+                    break;
+                case 2:
+                case 3:
+                    polyhedron = Polyhedron.GetGlobe(10, 70, _PolyhedronColor);
+                    break;
+                case 4:
+                case 5:
+                    polyhedron = Polyhedron.GetCone(10, 70, 140, _PolyhedronColor);
+                    break;
+                case 6:
+                case 7:
+                    polyhedron = Polyhedron.GetСylinder(10,70,140, _PolyhedronColor);
+                    break;
+                case 8:
+                case 9:
+                    polyhedron = Polyhedron.GetCube(new Point3D(0,0,0), 100, _PolyhedronColor);
+                    break;
+                default:
+                    polyhedron = GetFunctionPolyhedron(Function1, 60, -4, 4, 0.2, _PolyhedronColor);
+                    break;
+            }
+
             //polyhedron = GetGlobe(10, 70, Color.Green);
-            polyhedron = GetFunctionPolyhedron(Function1, 60, -4, 4, 0.2, Color.Green);
-            line = GetLine(60);
-
-            #region ставим в центр
-            foreach (var point in polyhedron.Vertexes)
+            //polyhedron = GetFunctionPolyhedron(Function1, 60, -4, 4, 0.2, Color.Green);
+            if (LineCheckBox.Checked)
             {
-                double dx = (bmp.Width / 2) - polyhedron.Center.X;
-                double dz = (bmp.Height / 2) - polyhedron.Center.Z;
-                point.X += dx;
-                point.Z += dz;
+                line = GetLine(60);
             }
-            polyhedron.ResetCenter();
-
-            foreach (var point in line.Vertexes)
+            else
             {
-                double dx = (bmp.Width / 2) - line.Center.X;
-                double dz = (bmp.Height / 2) - line.Center.Z;
-                point.X += dx;
-                point.Z += dz;
+                line = null;
             }
-            line.ResetCenter();
-            #endregion
+
+            SetInCenter(polyhedron);
+            SetInCenter(line);
+
+        }
+
+        void SetInCenter(Polyhedron polyhedron)
+        {
+            if (polyhedron != null)
+            {
+                foreach (var point in polyhedron.Vertexes)
+                {
+                    double dx = (bmp.Width / 2) - polyhedron.Center.X;
+                    double dz = (bmp.Height / 2) - polyhedron.Center.Z;
+                    point.X += dx;
+                    point.Z += dz;
+                }
+                polyhedron.ResetCenter();
+            }
         }
 
         private void RotationAndDrawing()
         {
             double angle = Math.PI / (90 / RotatingSpeed);
-            _RotatingVector = _RotatingVector / _RotatingVector.Length;
-            Quaternion h1 = new Quaternion(Math.Cos(angle / 2), _RotatingVector.X * Math.Sin(angle / 2), _RotatingVector.Y * Math.Sin(angle / 2), _RotatingVector.Z * Math.Sin(angle / 2));
-            Quaternion h2 = new Quaternion(h1.A, -h1.B, -h1.C, -h1.D);
             do
             {
                 try
@@ -162,45 +198,41 @@ namespace Kursach_v0._1
                     }
                     ClearZBuffer();
 
-                    DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 30, polyhedron);
-                    DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 30, line);
-                    //DrawPolyhedronByZBufferMetod(bmp, line, Vector.Point3DToVector(_LightPoint));
+                    switch (_SelectedIndex)
+                    {
+                        case 0:
+                        case 2:
+                        case 4:
+                        case 6:
+                        case 8:
+                            DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, polyhedron);
+                            break;
+                        case 1:
+                        case 3:
+                        case 5:
+                        case 7:
+                        case 9:
+                            DrawPolyhedronByZBufferMetod(bmp, polyhedron, _LightPoint);
+                            break;
+                        default:
+                            DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, polyhedron);
+                            break;
+                    }
+                    //DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, polyhedron);
+                    DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, line);
+
                     pictureBox1.Image = bmp;
 
                     foreach (var point in polyhedron.Vertexes)
                     {
-                        double dx;
-                        double dz;
-                        lock (locker)
-                        {
-                            dx = (bmp.Width / 2);
-                            dz = (bmp.Height / 2);
-                        }
-                        point.X -= dx;
-                        point.Z -= dz;
-                        var pointBuf = (h1 * point * h2).ToPoint3D();
-                        point.X = pointBuf.X + dx;
-                        point.Y = pointBuf.Y;
-                        point.Z = pointBuf.Z + dz;
+                        point.Rotation(new Point3D(bmp.Width / 2, 0, bmp.Height / 2), _RotatingVector, angle);                        
                     }
                     foreach (var point in line.Vertexes)
                     {
-                        double dx;
-                        double dz;
-                        lock (locker)
-                        {
-                            dx = (bmp.Width / 2);
-                            dz = (bmp.Height / 2);
-                        }
-                        point.X -= dx;
-                        point.Z -= dz;
-                        var pointBuf = (h1 * point * h2).ToPoint3D();
-                        point.X = pointBuf.X + dx;
-                        point.Y = pointBuf.Y;
-                        point.Z = pointBuf.Z + dz;
+                        point.Rotation(new Point3D(bmp.Width / 2, 0, bmp.Height / 2), _RotatingVector, angle);
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 { }
             } while (_IsRotating);
         }
@@ -215,7 +247,7 @@ namespace Kursach_v0._1
                 }
         }
 
-        public void DrawPolyhedronByZBufferMetod(Bitmap bmp, Polyhedron polyhedron, Vector LightVector)
+        public void DrawPolyhedronByZBufferMetod(Bitmap bmp, Polyhedron polyhedron, Point3D Light)
         {
             polyhedron.ResetBodyMatrix();
             for (int polygon = 0; polygon < polyhedron.Faces.Length; polygon++)
@@ -235,7 +267,7 @@ namespace Kursach_v0._1
                     coef1[i] *= Math.Sign(coef1[3]);
                 }
 
-
+                Vector LightVector = Vector.Point3DToVector(polyhedron.Center) - Vector.Point3DToVector(Light);
                 double L = GetCos1(-new Vector(coef1[0], coef1[1], coef1[2]), LightVector);
                 int R = (int)(polyhedron.Faces[polygon].Color.R * L);
                 R = R > 0 && R < 255 ? R : R > 0 ? 255 : 0;
@@ -283,6 +315,10 @@ namespace Kursach_v0._1
         {
             foreach (var polyhedron in polyhedrons)
             {
+                if (polyhedron == null)
+                {
+                    continue;
+                }
                 polyhedron.ResetBodyMatrix();
 
                 for (int polygon = 0; polygon < polyhedron.Faces.Length; polygon++)
@@ -455,6 +491,16 @@ namespace Kursach_v0._1
             Point3D c = new Point3D(145, 10, heingt / 2);
             Point3D d = new Point3D(145, 10, -heingt / 2);
 
+            Polygon polygon = new Polygon(new Point3D[] { a, b, c, d }) { Color = _LineColor };
+            return new Polyhedron(new Polygon[] { polygon }, a, b, c, d);
+        }
+        private Polyhedron GetLine2(int heingt)
+        {
+            Point3D a = new Point3D(-25, 25, -heingt / 2);
+            Point3D b = new Point3D(-25, 25, heingt / 2);
+            Point3D c = new Point3D(145, 10, heingt / 2);
+            Point3D d = new Point3D(145, 10, -heingt / 2);
+
             Polygon polygon = new Polygon(new Point3D[] { a, b, c, d }) { Color = Color.Blue };
             return new Polyhedron(new Polygon[] { polygon }, a, b, c, d);
         }
@@ -480,102 +526,6 @@ namespace Kursach_v0._1
             }
 
             return new Polyhedron(polygons.ToArray(), vertexes.ToArray());
-        }
-
-        private Polyhedron GetCube(Point3D center, double length)
-        {
-            Point3D a = new Point3D(center.X - length / 2, center.Y - length / 2, center.Z - length / 2);
-            Point3D a1 = new Point3D(center.X - length / 2, center.Y - length / 2, center.Z + length / 2);
-            Point3D b = new Point3D(center.X + length / 2, center.Y - length / 2, center.Z - length / 2);
-            Point3D b1 = new Point3D(center.X + length / 2, center.Y - length / 2, center.Z + length / 2);
-            Point3D c = new Point3D(center.X + length / 2, center.Y + length / 2, center.Z - length / 2);
-            Point3D c1 = new Point3D(center.X + length / 2, center.Y + length / 2, center.Z + length / 2);
-            Point3D d = new Point3D(center.X - length / 2, center.Y + length / 2, center.Z - length / 2);
-            Point3D d1 = new Point3D(center.X - length / 2, center.Y + length / 2, center.Z + length / 2);
-
-            Polygon[] polygons = new Polygon[]
-            {
-                new Polygon(new Point3D[] { a1,b1,c1,d1 }){Color = Color.Green},
-                new Polygon(new Point3D[] { d,c,b,a }){Color = Color.Green},
-                new Polygon(new Point3D[] { a,b,b1,a1 }){Color = Color.Green},
-                new Polygon(new Point3D[] { b,c,c1,b1 }){Color = Color.Green},
-                new Polygon(new Point3D[] { c,d,d1,c1 }){Color = Color.Green},
-                new Polygon(new Point3D[] { d,a,a1,d1 }){Color = Color.Green},
-            };
-
-            Polyhedron polyhedron = new Polyhedron(polygons, a, b, c, d, a1, b1, c1, d1);
-            //var center2D = new Point2D(polyhedron.Center.X, polyhedron.Center.Y);
-            //double rotatingAngle = -Math.PI / 4;
-
-            //foreach (var point in polyhedron.Vertexes)
-            //{
-            //    var point2d = Grafic.Rotation(center2D, new Point2D(point.X, point.Y), rotatingAngle);
-            //    point.X = point2d.X;
-            //    point.Y = point2d.Y;
-            //}
-            //rotatingAngle = Math.PI / 4;
-
-            //center2D = new Point2D(polyhedron.Center.Y, polyhedron.Center.Z);
-            //foreach (var point in polyhedron.Vertexes)
-            //{
-            //    var point2d = Grafic.Rotation(center2D, new Point2D(point.Y, point.Z), rotatingAngle);
-            //    point.Y = point2d.X;
-            //    point.Z = point2d.Y;
-            //}
-
-            return polyhedron;
-        }
-
-        private Polyhedron GetGlobe(int VertexesCount, double Radius, Color color)
-        {
-            List<Point3D> vertexes = new List<Point3D>();
-            List<Polygon> polygons = new List<Polygon>();
-            PointD center = new PointD(0, 0);
-            vertexes.Add(new Point3D(center.X, center.Y, Radius));
-
-            for (int i = 0; i < VertexesCount; i++)
-            {
-                PointD p = new PointD(center.X + Radius * Math.Sin(Math.PI * 1 / VertexesCount), center.Y);
-
-                p = Rotation(center, p, 2 * Math.PI * i / VertexesCount);
-                vertexes.Add(new Point3D(p.X, p.Y, Radius * Math.Cos(Math.PI * 1 / VertexesCount)));
-            }
-
-            for (int i = 1; i < VertexesCount; i++)
-            {
-                Polygon polygon = new Polygon(new Point3D[] { vertexes[0], vertexes[i], vertexes[i + 1] }) { Color = color };
-                polygons.Add(polygon);
-            }
-            polygons.Add(new Polygon(new Point3D[] { vertexes[0], vertexes[VertexesCount], vertexes[1] }) { Color = color });
-
-            for (int n = 2; n <= VertexesCount; n++)
-            {
-                for (int i = 0; i < VertexesCount; i++)
-                {
-                    PointD p = new PointD(center.X + Radius * Math.Sin(Math.PI * n / VertexesCount), center.Y);
-
-                    p = Rotation(center, p, 2 * Math.PI * i / VertexesCount);
-                    vertexes.Add(new Point3D(p.X, p.Y, Radius * Math.Cos(Math.PI * n / VertexesCount)));
-                }
-
-                for (int i = 1; i < VertexesCount; i++)
-                {
-                    Polygon polygon = new Polygon(new Point3D[] { vertexes[VertexesCount * (n - 2) + i], vertexes[VertexesCount * (n - 2) + i + 1], vertexes[VertexesCount * (n - 1) + i + 1], vertexes[VertexesCount * (n - 1) + i] }) { Color = color };
-                    polygons.Add(polygon);
-                }
-                polygons.Add(new Polygon(new Point3D[] { vertexes[VertexesCount * (n - 1)], vertexes[VertexesCount * (n - 2) + 1], vertexes[VertexesCount * (n - 1) + 1], vertexes[VertexesCount * (n)] }) { Color = color });
-            }
-
-
-
-            return new Polyhedron(polygons.ToArray(), vertexes.ToArray());
-        }
-
-        public PointD Rotation(PointD p0, PointD p, double angle)
-        {
-            double x = p0.X + (p.X - p0.X) * Math.Cos(angle) + (p.Y - p0.Y) * Math.Sin(angle);
-            double y = p0.Y + (p.Y - p0.Y) * Math.Cos(angle) - (p.X - p0.X) * Math.Sin(angle);
-            return new PointD(x, y);
         }
         #endregion
 
@@ -717,10 +667,7 @@ namespace Kursach_v0._1
         {
             if (e.KeyCode == Keys.Enter)
             {
-                _IsRotating = false;
-                RotatingTask.Wait();
-                _IsRotating = true;
-                TryToGetParametrs(Graphic3D);
+                Restart();
             }
         }
 
@@ -742,6 +689,49 @@ namespace Kursach_v0._1
         private void textBoxRotatingSpeed_KeyDown(object sender, KeyEventArgs e)
         {
             RunOnEnterPressing(e);
+        }
+
+        private void comboBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            RunOnEnterPressing(e);
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _SelectedIndex = comboBox1.SelectedIndex;
+        }
+
+        private void buttonPolyhedronColor_Click(object sender, EventArgs e)
+        {
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+            {
+                _PolyhedronColor = colorDialog1.Color;
+                Parallel.For(0, polyhedron.Faces.Length, x => { polyhedron.Faces[x].Color = _PolyhedronColor; });
+                Restart();
+            }
+        }
+
+        private void buttonLineColor_Click(object sender, EventArgs e)
+        {
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+            {
+                _LineColor = colorDialog1.Color;
+                Parallel.For(0, line.Faces.Length, x => { line.Faces[x].Color = _LineColor; });
+                Restart();
+            }
+        }
+
+        private void LineCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+
+            Restart();
+        }
+        void Restart()
+        {
+            _IsRotating = false;
+            RotatingTask.Wait();
+            _IsRotating = true;
+            TryToGetParametrs(Graphic3D);
         }
     }
 }
