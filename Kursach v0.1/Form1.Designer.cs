@@ -1,4 +1,4 @@
-﻿namespace Kursach_v0._1
+﻿namespace Kursach
 {
     partial class Form1
     {
@@ -44,6 +44,8 @@
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.buttonPolyhedronColor = new System.Windows.Forms.Button();
             this.buttonLineColor = new System.Windows.Forms.Button();
+            this.buttonPlay = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
@@ -210,11 +212,32 @@
             this.buttonLineColor.UseVisualStyleBackColor = true;
             this.buttonLineColor.Click += new System.EventHandler(this.buttonLineColor_Click);
             // 
+            // buttonPlay
+            // 
+            this.buttonPlay.Location = new System.Drawing.Point(242, 510);
+            this.buttonPlay.Name = "buttonPlay";
+            this.buttonPlay.Size = new System.Drawing.Size(75, 23);
+            this.buttonPlay.TabIndex = 15;
+            this.buttonPlay.Text = "PLAY!!!";
+            this.buttonPlay.UseVisualStyleBackColor = true;
+            this.buttonPlay.Click += new System.EventHandler(this.buttonPlay_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(241, 536);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(76, 13);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "Берегите уши";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(633, 421);
+            this.ClientSize = new System.Drawing.Size(644, 413);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.buttonPlay);
             this.Controls.Add(this.buttonLineColor);
             this.Controls.Add(this.buttonPolyhedronColor);
             this.Controls.Add(this.LineCheckBox);
@@ -231,7 +254,7 @@
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.pictureBox1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Курсовая";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
@@ -257,6 +280,8 @@
         private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.Button buttonPolyhedronColor;
         private System.Windows.Forms.Button buttonLineColor;
+        private System.Windows.Forms.Button buttonPlay;
+        private System.Windows.Forms.Label label5;
     }
 }
 

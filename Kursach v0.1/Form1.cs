@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GraphicLib;
 
-namespace Kursach_v0._1
+namespace Kursach
 {
     public partial class Form1 : Form
     {
         delegate double Function(double x);
         Bitmap bmp;
-        private Task RotatingTask;
+        Task RotatingTask;
         bool _IsRotating;
         Polyhedron polyhedron;
         Polyhedron line;
@@ -23,7 +23,7 @@ namespace Kursach_v0._1
         double RotatingSpeed;
         Point3D _LightPoint;
         Point3D _Observation;
-        double[,] ZBuffer;
+        double[,] ZBuffer;        
         object locker = new object();
         int _SelectedIndex;
         Color _PolyhedronColor;
@@ -45,6 +45,7 @@ namespace Kursach_v0._1
             _IsRotating = false;
 
             TryToGetParametrs(Graphic3D);
+
         }
 
         private double Function1(double x)
@@ -143,11 +144,11 @@ namespace Kursach_v0._1
                     break;
                 case 6:
                 case 7:
-                    polyhedron = Polyhedron.GetСylinder(10,70,140, _PolyhedronColor);
+                    polyhedron = Polyhedron.GetСylinder(10, 70, 140, _PolyhedronColor);
                     break;
                 case 8:
                 case 9:
-                    polyhedron = Polyhedron.GetCube(new Point3D(0,0,0), 100, _PolyhedronColor);
+                    polyhedron = Polyhedron.GetCube(new Point3D(0, 0, 0), 100, _PolyhedronColor);
                     break;
                 default:
                     polyhedron = GetFunctionPolyhedron(Function1, 60, -4, 4, 0.2, _PolyhedronColor);
@@ -225,7 +226,7 @@ namespace Kursach_v0._1
 
                     foreach (var point in polyhedron.Vertexes)
                     {
-                        point.Rotation(new Point3D(bmp.Width / 2, 0, bmp.Height / 2), _RotatingVector, angle);                        
+                        point.Rotation(new Point3D(bmp.Width / 2, 0, bmp.Height / 2), _RotatingVector, angle);
                     }
                     foreach (var point in line.Vertexes)
                     {
@@ -726,12 +727,35 @@ namespace Kursach_v0._1
 
             Restart();
         }
+
         void Restart()
         {
             _IsRotating = false;
             RotatingTask.Wait();
             _IsRotating = true;
             TryToGetParametrs(Graphic3D);
+        }
+
+        System.Media.SoundPlayer sp;
+        bool playing;
+        private void buttonPlay_Click(object sender, EventArgs e)
+        {
+            if (sp == null)
+            {
+                sp = new System.Media.SoundPlayer("GraphicLib.wav");
+                sp.Load();
+            }
+            if(playing)
+            {
+                sp.Stop();
+                playing = false;
+            }
+            else
+            {
+                sp.PlayLooping();
+                playing = true;
+            }
+
         }
     }
 }

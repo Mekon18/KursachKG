@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Kursach_v0._1
+namespace Kursach
 {
     static class Program
     {
