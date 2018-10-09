@@ -23,7 +23,7 @@ namespace Kursach
         double RotatingSpeed;
         Point3D _LightPoint;
         Point3D _Observation;
-        double[,] ZBuffer;        
+        double[,] ZBuffer;
         object locker = new object();
         int _SelectedIndex;
         Color _PolyhedronColor;
@@ -199,26 +199,15 @@ namespace Kursach
                     }
                     ClearZBuffer();
 
-                    switch (_SelectedIndex)
+                    if (_SelectedIndex % 2 == 0)
                     {
-                        case 0:
-                        case 2:
-                        case 4:
-                        case 6:
-                        case 8:
-                            DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, polyhedron);
-                            break;
-                        case 1:
-                        case 3:
-                        case 5:
-                        case 7:
-                        case 9:
-                            DrawPolyhedronByZBufferMetod(bmp, polyhedron, _LightPoint);
-                            break;
-                        default:
-                            DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, polyhedron);
-                            break;
+                        DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, polyhedron);
                     }
+                    else
+                    {
+                        DrawPolyhedronByZBufferMetod(bmp, polyhedron, _LightPoint);
+                    }
+
                     //DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, polyhedron);
                     DrawPolyhedronByPhong(bmp, _Observation, _LightPoint, 10, line);
 
@@ -233,7 +222,7 @@ namespace Kursach
                         point.Rotation(new Point3D(bmp.Width / 2, 0, bmp.Height / 2), _RotatingVector, angle);
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 { }
             } while (_IsRotating);
         }
@@ -430,6 +419,7 @@ namespace Kursach
                             for (int x = xmin; x <= xmax; x++)
                             {
                                 double z = (-(coef[0] * x + coef[2] * y + coef[3]) / coef[1]);
+
                                 Vector V = V1 + (V2 - V1) * (x - xmin) / (xmax - xmin);
                                 V /= V.Length;
                                 Vector LightVector = new Vector(x, z, y) - Vector.Point3DToVector(Light);
@@ -454,6 +444,7 @@ namespace Kursach
                                         {
                                             ZBuffer[x, bmp.Height - y] = z;
                                             bmp.SetPixel(x, bmp.Height - y, color);
+
                                         }
                                 }
                             }
@@ -553,26 +544,41 @@ namespace Kursach
             TryToGetParametrs(Graphic3D);
         }
 
-        private bool TryToGetRotatingVector(out Vector vector)
+        private bool TryToGetXYZ(string text, out Point3D XYZ)
         {
-            vector = null;
+            XYZ = new Point3D(0, 0, 0);
             bool isOK;
-            string text = textBoxRotatingVector.Text;
             int CommaIndex = text.IndexOf(';');
-            isOK = double.TryParse(text.Substring(0, CommaIndex), out double X);
+            string num = "";
+            if (CommaIndex > 0)
+                num = text.Substring(0, CommaIndex);
+            isOK = double.TryParse(num, out double X);
             if (isOK)
             {
                 text = text.Remove(0, CommaIndex + 1);
                 CommaIndex = text.IndexOf(';');
-                isOK = double.TryParse(text.Substring(0, CommaIndex), out double Y);
+                if (CommaIndex > 0)
+                    num = text.Substring(0, CommaIndex);
+                isOK = double.TryParse(num, out double Y);
                 if (isOK)
                 {
                     text = text.Remove(0, CommaIndex + 1);
                     isOK = double.TryParse(text, out double Z);
                     if (isOK)
-                        vector = new Vector(X, Y, Z);
+                        XYZ = new Point3D(X, Y, Z);
                 }
             }
+            return isOK;
+        }
+
+        private bool TryToGetRotatingVector(out Vector vector)
+        {
+            vector = null;
+            bool isOK;
+            string text = textBoxRotatingVector.Text;
+            isOK = TryToGetXYZ(text, out Point3D XYZ);
+            if (isOK)
+                vector = Vector.Point3DToVector(XYZ);
             return isOK;
         }
 
@@ -581,21 +587,9 @@ namespace Kursach
             point = null;
             bool isOK;
             string text = textBoxLightPoint.Text;
-            int CommaIndex = text.IndexOf(';');
-            isOK = double.TryParse(text.Substring(0, CommaIndex), out double X);
+            isOK = TryToGetXYZ(text, out Point3D XYZ);
             if (isOK)
-            {
-                text = text.Remove(0, CommaIndex + 1);
-                CommaIndex = text.IndexOf(';');
-                isOK = double.TryParse(text.Substring(0, CommaIndex), out double Y);
-                if (isOK)
-                {
-                    text = text.Remove(0, CommaIndex + 1);
-                    isOK = double.TryParse(text, out double Z);
-                    if (isOK)
-                        point = new Point3D(X, Y, Z);
-                }
-            }
+                point = XYZ;
             return isOK;
         }
 
@@ -604,21 +598,9 @@ namespace Kursach
             point = null;
             bool isOK;
             string text = textBoxObservation.Text;
-            int CommaIndex = text.IndexOf(';');
-            isOK = double.TryParse(text.Substring(0, CommaIndex), out double X);
+            isOK = TryToGetXYZ(text, out Point3D XYZ);
             if (isOK)
-            {
-                text = text.Remove(0, CommaIndex + 1);
-                CommaIndex = text.IndexOf(';');
-                isOK = double.TryParse(text.Substring(0, CommaIndex), out double Y);
-                if (isOK)
-                {
-                    text = text.Remove(0, CommaIndex + 1);
-                    isOK = double.TryParse(text, out double Z);
-                    if (isOK)
-                        point = new Point3D(X, Y, Z);
-                }
-            }
+                point = XYZ;
             return isOK;
         }
 
@@ -745,7 +727,7 @@ namespace Kursach
                 sp = new System.Media.SoundPlayer("GraphicLib.wav");
                 sp.Load();
             }
-            if(playing)
+            if (playing)
             {
                 sp.Stop();
                 playing = false;
